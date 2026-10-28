@@ -1,0 +1,128 @@
+export const landing = {
+  en: {
+    nav: { how: "How it works", selfHost: "Self-host", github: "GitHub" },
+    hero: {
+      title: "Hear what users say, on the page where it happened.",
+      lead: "Customatic puts a small feedback button on your site. Users report problems, ideas and comments in a few seconds, and each one reaches your team with the page, device and a screenshot.",
+      primary: "Create free account",
+      secondary: "Run it yourself",
+      note: "Free and open source, MIT license.",
+    },
+    demo: {
+      site: "acme.app/checkout",
+      siteTitle: "Checkout",
+      siteLine: "Your product goes here.",
+      tryIt: "Try it: send feedback with the button below.",
+      inbox: "Your inbox",
+      live: "Live",
+      typeHere: "Write something…",
+      send: "Send",
+      sent: "Sent. Look at the inbox.",
+      you: "you",
+      seed: [
+        { type: "problem", text: "Search bar disappears on Safari when I rotate the phone", who: "lucia@…", page: "/search", device: "iPhone" },
+        { type: "suggestion", text: "Let me export the report as CSV", who: "Anonymous", page: "/reports", device: "Desktop" },
+        { type: "comment", text: "The new onboarding is so much clearer, thanks!", who: "mark@…", page: "/welcome", device: "Desktop" },
+      ],
+    },
+    steps: {
+      title: "Running in two minutes",
+      items: [
+        { title: "Paste one line", body: "Add the script tag before </body>. It works with any framework, a website builder or plain HTML. No package, no build step." },
+        { title: "Users write in seconds", body: "They click the button, choose problem, idea or comment, and type. No account. They can attach a screenshot of the page." },
+        { title: "Your team acts on it", body: "Every report lands in a shared inbox, sorted by type. Assign it, move it to done, or reply by email from the same screen." },
+      ],
+    },
+    context: {
+      title: "Every report comes with its context",
+      lead: "No more “it doesn't work” without knowing where. The widget attaches what you need to reproduce the issue, without asking the user.",
+      items: [
+        { title: "The exact page", body: "Full URL and page title, so you open the same screen the user saw." },
+        { title: "Device and browser", body: "Phone, tablet or desktop, browser version, operating system and screen size." },
+        { title: "A screenshot", body: "Captured from the page in one click, or uploaded by the user." },
+        { title: "Who wrote it", body: "Their email, plus any data your app passes: user id, plan, company." },
+      ],
+    },
+    features: {
+      title: "Built for small teams that ship often",
+      items: [
+        { title: "Inbox by type", body: "Problems, ideas and comments apart, with search across messages, emails and pages." },
+        { title: "To do, in progress, done", body: "A status on every report, and a teammate assigned so nothing falls through." },
+        { title: "Reply by email", body: "Answer from the dashboard. The user gets an email and you keep the thread." },
+        { title: "Analytics", body: "Reports per day, pages with the most problems, devices, and how long you take to resolve." },
+        { title: "Public roadmap", body: "Pick ideas to publish, show what's planned and shipped, and let visitors vote." },
+        { title: "English and Spanish", body: "The widget speaks your visitor's language. The dashboard too." },
+      ],
+    },
+    selfHost: {
+      title: "Yours to run",
+      lead: "Customatic is open source under the MIT license. Run it on your own server with a single command, or deploy it to Vercel with Postgres. Your users' feedback stays in your database.",
+      steps: "Clone, install, run. It starts with an embedded Postgres, so there's nothing else to set up.",
+      cta: "See it on GitHub",
+    },
+    footer: "Customatic is open source. Made by Pedro Dreyer at Loopers.",
+  },
+  es: {
+    nav: { how: "Cómo funciona", selfHost: "Instalalo vos", github: "GitHub" },
+    hero: {
+      title: "Escuchá a tus usuarios en la página donde les pasó.",
+      lead: "Customatic agrega un pequeño botón de comentarios a tu sitio. Tus usuarios reportan problemas, ideas y comentarios en segundos, y cada uno le llega a tu equipo con la página, el dispositivo y una captura.",
+      primary: "Crear cuenta gratis",
+      secondary: "Instalalo vos",
+      note: "Gratis y open source, licencia MIT.",
+    },
+    demo: {
+      site: "acme.app/checkout",
+      siteTitle: "Checkout",
+      siteLine: "Acá va tu producto.",
+      tryIt: "Probalo: mandá un comentario con el botón de abajo.",
+      inbox: "Tu bandeja",
+      live: "En vivo",
+      typeHere: "Escribí algo…",
+      send: "Enviar",
+      sent: "Enviado. Mirá la bandeja.",
+      you: "vos",
+      seed: [
+        { type: "problem", text: "La barra de búsqueda desaparece en Safari al girar el celular", who: "lucia@…", page: "/buscar", device: "iPhone" },
+        { type: "suggestion", text: "Que se pueda exportar el reporte a CSV", who: "Anónimo", page: "/reportes", device: "Escritorio" },
+        { type: "comment", text: "El nuevo onboarding se entiende mucho mejor, ¡gracias!", who: "marcos@…", page: "/bienvenida", device: "Escritorio" },
+      ],
+    },
+    steps: {
+      title: "Funcionando en dos minutos",
+      items: [
+        { title: "Pegá una línea", body: "Agregá el script antes de </body>. Funciona con cualquier framework, constructor de sitios o HTML común. Sin paquetes ni compilación." },
+        { title: "Tus usuarios escriben en segundos", body: "Hacen clic en el botón, eligen problema, idea o comentario, y escriben. Sin cuenta. Pueden adjuntar una captura de la página." },
+        { title: "Tu equipo actúa", body: "Cada reporte llega a una bandeja compartida, ordenado por tipo. Asignalo, marcalo como hecho o respondé por email desde la misma pantalla." },
+      ],
+    },
+    context: {
+      title: "Cada reporte llega con su contexto",
+      lead: "Se terminó el “no funciona” sin saber dónde. El widget adjunta lo que necesitás para reproducir el problema, sin preguntarle nada al usuario.",
+      items: [
+        { title: "La página exacta", body: "URL completa y título, para que abras la misma pantalla que vio el usuario." },
+        { title: "Dispositivo y navegador", body: "Celular, tablet o computadora, versión del navegador, sistema operativo y tamaño de pantalla." },
+        { title: "Una captura", body: "De la página con un clic, o una imagen que sube el usuario." },
+        { title: "Quién escribió", body: "Su email, más los datos que pase tu app: id de usuario, plan, empresa." },
+      ],
+    },
+    features: {
+      title: "Hecho para equipos chicos que publican seguido",
+      items: [
+        { title: "Bandeja por tipo", body: "Problemas, ideas y comentarios por separado, con búsqueda en mensajes, emails y páginas." },
+        { title: "Por hacer, en curso, hecho", body: "Cada reporte con su estado y un responsable asignado, para que nada se pierda." },
+        { title: "Respuesta por email", body: "Contestá desde el dashboard. El usuario recibe un email y vos guardás el hilo." },
+        { title: "Métricas", body: "Reportes por día, páginas con más problemas, dispositivos y cuánto tardás en resolver." },
+        { title: "Roadmap público", body: "Elegí qué ideas publicar, mostrá lo planeado y lo lanzado, y dejá que voten." },
+        { title: "Inglés y español", body: "El widget habla el idioma de tu visitante. El dashboard también." },
+      ],
+    },
+    selfHost: {
+      title: "Lo instalás donde quieras",
+      lead: "Customatic es open source con licencia MIT. Corrélo en tu servidor con un solo comando, o publicalo en Vercel con Postgres. Los comentarios de tus usuarios quedan en tu base de datos.",
+      steps: "Cloná, instalá y corré. Arranca con un Postgres embebido, así que no hay nada más que configurar.",
+      cta: "Ver en GitHub",
+    },
+    footer: "Customatic es open source. Hecho por Pedro Dreyer en Loopers.",
+  },
+} as const;

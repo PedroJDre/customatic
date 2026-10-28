@@ -1,26 +1,94 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Customatic tokens. Type colors carry meaning everywhere: red problems, violet ideas, teal comments. */
+@theme {
+  --color-ink: #141733;
+  --color-ink-2: #3a3f5c;
+  --color-muted: #5b6079;
+  --color-faint: #8a8fa6;
+  --color-line: #e4e6ef;
+  --color-line-2: #eef0f5;
+  --color-canvas: #f3f4f8;
+  --color-surface: #ffffff;
+  --color-brand: #2433f5;
+  --color-brand-ink: #1a26c4;
+  --color-brand-soft: #eceefe;
+  /* Marks (bars, dots, edges). Validated for color-blind separation. */
+  --color-problem: #d1433a;
+  --color-idea: #7c3aed;
+  --color-comment: #0d9488;
+  /* Text on the soft fills */
+  --color-problem-ink: #a8291f;
+  --color-idea-ink: #5b21b6;
+  --color-comment-ink: #0b6b62;
+  --color-problem-soft: #fdeceb;
+  --color-idea-soft: #f1ebfe;
+  --color-comment-soft: #e0f4f2;
+  --color-warn: #a15c07;
+  --font-sans: var(--font-schibsted), ui-sans-serif, system-ui, sans-serif;
+  --radius-card: 14px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01";
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-brand) 55%, transparent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Reusable pieces. @utility (not @layer components) so they can be combined with @apply. */
+@utility btn {
+  @apply inline-flex h-10 items-center justify-center gap-2 rounded-[10px] px-4 text-[14px] font-semibold whitespace-nowrap transition-colors disabled:cursor-not-allowed disabled:opacity-60;
+}
+@utility btn-primary {
+  @apply btn bg-brand text-white hover:bg-brand-ink;
+}
+@utility btn-quiet {
+  @apply btn border border-line bg-surface text-ink hover:border-[#c9cddd];
+}
+@utility btn-danger {
+  @apply btn border border-problem/30 bg-surface text-problem-ink hover:bg-problem-soft;
+}
+@utility input {
+  @apply h-10 w-full rounded-[10px] border-[1.5px] border-line bg-surface px-3 text-[14px] text-ink outline-none placeholder:text-faint focus:border-brand;
+}
+@utility textarea {
+  @apply w-full rounded-[10px] border-[1.5px] border-line bg-surface px-3 py-2.5 text-[14px] text-ink outline-none placeholder:text-faint focus:border-brand;
+}
+@utility label {
+  @apply mb-1.5 block text-[13px] font-semibold text-ink;
+}
+@utility hint {
+  @apply mt-1.5 text-[12.5px] text-muted;
+}
+@utility card {
+  @apply rounded-[var(--radius-card)] border border-line bg-surface;
+}
+
+/* Landing demo: a new report drops into the inbox. */
+@keyframes drop {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+    background: rgb(255 255 255 / 0.18);
+  }
 }
