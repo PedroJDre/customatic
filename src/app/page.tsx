@@ -131,6 +131,10 @@ export default async function Home() {
         <div className="mx-auto flex max-w-[1180px] flex-wrap items-center justify-between gap-4 px-5 py-8 text-[13.5px] text-muted sm:px-8">
           <Logo className="opacity-80" />
           <p>{l.footer}</p>
+          <nav className="flex gap-4" aria-label="Legal">
+            <Link href="/privacy" className="hover:text-ink">{locale === "es" ? "Privacidad" : "Privacy"}</Link>
+            <Link href="/terms" className="hover:text-ink">{locale === "es" ? "Términos" : "Terms"}</Link>
+          </nav>
           <LangSwitch locale={locale} className="sm:hidden" />
         </div>
       </footer>
