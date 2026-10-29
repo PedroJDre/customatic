@@ -76,6 +76,7 @@ function boot() {
   }
   if (document.getElementById("customatic-widget")) return; // loaded twice
   const base = script.dataset.api ?? new URL(script.src).origin;
+  const forcedSide = script.dataset.position; // data-position="left|right" overrides the app setting
 
   let settings: Settings = {
     name: "",
@@ -105,7 +106,7 @@ function boot() {
 
   function render() {
     const s = t();
-    const side = settings.position === "left" ? "left" : "right";
+    const side = forcedSide === "left" || forcedSide === "right" ? forcedSide : settings.position === "left" ? "left" : "right";
     const label = settings.label || s.button;
     root.innerHTML = `<style>${css(settings.color, side)}</style>
       <div class="backdrop ${state.open ? "show" : ""}" data-action="close" aria-hidden="true"></div>

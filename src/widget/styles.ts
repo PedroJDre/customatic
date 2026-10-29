@@ -1,11 +1,15 @@
-/** Widget CSS. Lives in a shadow root, so the host page can't break it and it can't break the page. */
+/**
+ * Widget CSS. Lives in a shadow root, so the host page can't break it and it can't break the page.
+ * The host page can lift the button above its own fixed bars with:
+ *   #customatic-widget { --customatic-bottom: 88px; }
+ */
 export function css(accent: string, side: "left" | "right"): string {
   return `
 :host { all: initial; }
 * { box-sizing: border-box; }
 .launcher, .panel { font: 14px/1.45 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #141733; }
 .launcher {
-  position: fixed; ${side}: 20px; bottom: 20px; display: inline-flex; align-items: center; gap: 8px;
+  position: fixed; ${side}: 20px; bottom: var(--customatic-bottom, 20px); display: inline-flex; align-items: center; gap: 8px;
   height: 46px; padding: 0 18px 0 15px; border: 0; border-radius: 23px; cursor: pointer;
   background: ${accent}; color: #fff; font-weight: 600; font-size: 14.5px; letter-spacing: .01em;
   box-shadow: 0 6px 20px -6px ${accent}, 0 2px 6px rgba(20,23,51,.18);
@@ -16,7 +20,7 @@ export function css(accent: string, side: "left" | "right"): string {
   outline: 3px solid ${accent}; outline-offset: 2px;
 }
 .panel {
-  position: fixed; ${side}: 20px; bottom: 78px; width: 360px; max-width: calc(100vw - 24px);
+  position: fixed; ${side}: 20px; bottom: calc(var(--customatic-bottom, 20px) + 58px); width: 360px; max-width: calc(100vw - 24px);
   max-height: calc(100vh - 100px); overflow: auto; background: #fff; border-radius: 16px;
   box-shadow: 0 24px 60px -12px rgba(20,23,51,.35), 0 0 0 1px rgba(20,23,51,.08);
   padding: 18px;
@@ -26,7 +30,7 @@ export function css(accent: string, side: "left" | "right"): string {
 @media (prefers-reduced-motion: reduce) { .panel { animation: none; } .launcher { transition: none; } }
 /* Phones: the panel becomes a bottom sheet over the page, clear of the iPhone home bar. */
 @media (max-width: 520px) {
-  .launcher { ${side}: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); height: 44px; }
+  .launcher { ${side}: 12px; bottom: calc(var(--customatic-bottom, 12px) + env(safe-area-inset-bottom)); height: 44px; }
   .launcher.hidden { display: none; }
   .backdrop { position: fixed; inset: 0; background: rgba(20,23,51,.35); animation: fade .18s ease-out; }
   .panel {

@@ -95,7 +95,13 @@ window.Customatic?.identify({ email: user.email, id: user.id, plan: user.plan })
 window.Customatic?.open("problem");
 ```
 
-Script tag options: `data-app-id` (required), `data-lang="en|es"` to force a language, and `data-api` to send reports to a different host than the one serving the script. Color, position, button text and whether to ask for an email are set per app in **Settings**.
+Script tag options: `data-app-id` (required), `data-lang="en|es"` to force a language, `data-position="left|right"` to override the app's setting, and `data-api` to send reports to a different host than the one serving the script.
+
+If your site has its own fixed bar or chat button at the bottom, lift the feedback button above it with a CSS variable:
+
+```css
+body.has-buy-bar #customatic-widget { --customatic-bottom: 88px; }
+``` Color, position, button text and whether to ask for an email are set per app in **Settings**.
 
 The **Install** tab also gives you a ready-made prompt for Claude Code, Cursor or any coding assistant, with your app ID already filled in.
 
