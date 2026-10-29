@@ -29,7 +29,14 @@ export type WidgetSettings = {
   language: "auto" | "en" | "es";
   label: string;
   askEmail: "optional" | "required" | "hidden";
+  /** Custom copy. Empty = the default text in the visitor's language. */
+  title?: string;
+  subtitle?: string;
+  thanksTitle?: string;
+  thanksBody?: string;
 };
+
+export const WIDGET_TEXT_LIMITS = { label: 28, title: 60, subtitle: 140, thanksTitle: 60, thanksBody: 200 } as const;
 
 export const defaultWidgetSettings: WidgetSettings = {
   color: "#2433F5",

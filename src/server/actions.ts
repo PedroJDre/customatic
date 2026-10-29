@@ -7,7 +7,7 @@ import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { db } from "@/db";
-import { apps, defaultWidgetSettings, feedback, member, replies, roadmapVotes, type WidgetSettings } from "@/db/schema";
+import { apps, defaultWidgetSettings, feedback, member, replies, roadmapVotes, WIDGET_TEXT_LIMITS, type WidgetSettings } from "@/db/schema";
 import { LOCALE_COOKIE, getMessages } from "@/i18n/server";
 import { auth } from "@/lib/auth";
 import { sendEmail } from "@/lib/email";
@@ -143,12 +143,18 @@ export async function updateAppSettings(appId: string, _prev: ActionState, form:
   const name = String(form.get("name") ?? "").trim().slice(0, 60);
   if (name.length < 2) return { error: t.auth.failed };
   const color = String(form.get("color") ?? "");
+  const text = (key: keyof typeof WIDGET_TEXT_LIMITS) =>
+    String(form.get(key) ?? "").replace(/\s+/g, " ").trim().slice(0, WIDGET_TEXT_LIMITS[key]);
   const widget: WidgetSettings = {
     color: hex.test(color) ? color : defaultWidgetSettings.color,
     position: form.get("position") === "left" ? "left" : "right",
     language: (["auto", "en", "es"] as const).find((l) => l === form.get("language")) ?? "auto",
-    label: String(form.get("label") ?? "").trim().slice(0, 24),
+    label: text("label"),
     askEmail: (["optional", "required", "hidden"] as const).find((v) => v === form.get("askEmail")) ?? "optional",
+    title: text("title"),
+    subtitle: text("subtitle"),
+    thanksTitle: text("thanksTitle"),
+    thanksBody: text("thanksBody"),
   };
   await db
     .update(apps)

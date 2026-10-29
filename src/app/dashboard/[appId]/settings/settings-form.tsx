@@ -1,15 +1,28 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import type { App } from "@/db/schema";
+import { WIDGET_TEXT_LIMITS, type App } from "@/db/schema";
+import { strings as widgetStrings } from "@/widget/i18n";
 import type { Messages } from "@/i18n/messages";
 import { deleteApp, updateAppSettings, type ActionState } from "@/server/actions";
 
-export function SettingsForm({ app, t, roadmapUrl }: { app: App; t: Messages; roadmapUrl: string }) {
+const TEXT_FIELDS = ["label", "title", "subtitle", "thanksTitle", "thanksBody"] as const;
+
+export function SettingsForm({ app, t, roadmapUrl, locale }: { app: App; t: Messages; roadmapUrl: string; locale: "en" | "es" }) {
   const [state, action, pending] = useActionState<ActionState, FormData>(updateAppSettings.bind(null, app.id), null);
   const [del, delAction, deleting] = useActionState<ActionState, FormData>(deleteApp.bind(null, app.id), null);
   const [color, setColor] = useState(app.widget.color);
-  const [label, setLabel] = useState(app.widget.label);
+  const [language, setLanguage] = useState(app.widget.language);
+  const [texts, setTexts] = useState({
+    label: app.widget.label ?? "",
+    title: app.widget.title ?? "",
+    subtitle: app.widget.subtitle ?? "",
+    thanksTitle: app.widget.thanksTitle ?? "",
+    thanksBody: app.widget.thanksBody ?? "",
+  });
+  // Placeholders and preview show the default copy in the widget's language.
+  const w = widgetStrings[language === "auto" ? locale : language];
+  const defaults = { label: w.button, title: w.title, subtitle: w.subtitle, thanksTitle: w.thanks, thanksBody: w.thanksBody };
   const s = t.settings;
   return (
     <>
@@ -45,11 +58,6 @@ export function SettingsForm({ app, t, roadmapUrl }: { app: App; t: Messages; ro
               </div>
             </div>
             <div>
-              <label className="label" htmlFor="label">{s.label}</label>
-              <input className="input" id="label" name="label" value={label} onChange={(e) => setLabel(e.target.value)} maxLength={24} />
-              <p className="hint">{s.labelHint}</p>
-            </div>
-            <div>
               <label className="label" htmlFor="position">{s.position}</label>
               <select className="input" id="position" name="position" defaultValue={app.widget.position}>
                 <option value="right">{s.right}</option>
@@ -58,7 +66,13 @@ export function SettingsForm({ app, t, roadmapUrl }: { app: App; t: Messages; ro
             </div>
             <div>
               <label className="label" htmlFor="language">{s.widgetLanguage}</label>
-              <select className="input" id="language" name="language" defaultValue={app.widget.language}>
+              <select
+                className="input"
+                id="language"
+                name="language"
+                value={language}
+                onChange={(e) => setLanguage(e.target.value as typeof language)}
+              >
                 <option value="auto">{s.auto}</option>
                 <option value="en">English</option>
                 <option value="es">Español</option>
@@ -73,13 +87,65 @@ export function SettingsForm({ app, t, roadmapUrl }: { app: App; t: Messages; ro
               </select>
             </div>
           </div>
-          <div className="flex items-center rounded-xl bg-canvas p-4" aria-hidden>
-            <span className="inline-flex h-[44px] items-center gap-2 rounded-full px-4 text-[14px] font-semibold text-white" style={{ background: color }}>
-              <svg width="18" height="18" viewBox="0 0 24 24">
-                <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.2 3.6A.5.5 0 0 1 5 19.2V16h-.5A2.5 2.5 0 0 1 2 13.5" fill="none" stroke="currentColor" strokeWidth="1.8" />
-              </svg>
-              {label || "Feedback"}
-            </span>
+        </section>
+
+        <section className="card grid gap-5 p-6">
+          <div>
+            <h2 className="text-[17px] font-bold">{s.texts}</h2>
+            <p className="mt-1 text-[14px] text-muted">{s.textsLead}</p>
+          </div>
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
+            <div className="grid content-start gap-4">
+              {TEXT_FIELDS.map((field) => {
+                const common = {
+                  id: field,
+                  name: field,
+                  value: texts[field],
+                  maxLength: WIDGET_TEXT_LIMITS[field],
+                  placeholder: defaults[field],
+                };
+                return (
+                  <div key={field}>
+                    <label className="label" htmlFor={field}>{s.textLabels[field]}</label>
+                    {field === "subtitle" || field === "thanksBody" ? (
+                      <textarea className="textarea" rows={2} {...common} onChange={(e) => setTexts({ ...texts, [field]: e.target.value })} />
+                    ) : (
+                      <input className="input" {...common} onChange={(e) => setTexts({ ...texts, [field]: e.target.value })} />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <figure className="m-0 grid content-start gap-3 rounded-xl bg-canvas p-4">
+              <figcaption className="text-[12.5px] font-semibold text-muted">{s.preview}</figcaption>
+              <div className="rounded-xl bg-surface p-4 shadow-[0_12px_30px_-12px_rgba(20,23,51,.3),0_0_0_1px_rgba(20,23,51,.06)]">
+                <p className="text-[15px] leading-snug font-bold break-words">{texts.title || defaults.title}</p>
+                <p className="mt-1 text-[12.5px] break-words text-muted">{texts.subtitle || defaults.subtitle}</p>
+                <div className="mt-3 grid gap-1.5" aria-hidden>
+                  <span className="h-7 rounded-lg border border-line" />
+                  <span className="h-7 rounded-lg border border-line" />
+                  <span className="h-7 rounded-lg border border-line" />
+                </div>
+              </div>
+              <div className="rounded-xl bg-surface p-4 text-center shadow-[0_12px_30px_-12px_rgba(20,23,51,.3),0_0_0_1px_rgba(20,23,51,.06)]">
+                <p className="text-[14px] font-bold break-words">{texts.thanksTitle || defaults.thanksTitle}</p>
+                <p className="mt-1 text-[12.5px] break-words text-muted">{texts.thanksBody || defaults.thanksBody}</p>
+              </div>
+              <span
+                className="inline-flex h-[42px] max-w-full items-center gap-2 justify-self-start rounded-full px-4 text-[14px] font-semibold text-white"
+                style={{ background: color }}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden>
+                  <path
+                    d="M4 5.5A2.5 2.5 0 0 1 6.5 3h11A2.5 2.5 0 0 1 20 5.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.2 3.6A.5.5 0 0 1 5 19.2V16h-.5A2.5 2.5 0 0 1 2 13.5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                  />
+                </svg>
+                <span className="truncate">{texts.label || defaults.label}</span>
+              </span>
+            </figure>
           </div>
         </section>
 

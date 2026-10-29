@@ -8,10 +8,10 @@ export const metadata: Metadata = { title: "Settings" };
 
 export default async function SettingsPage({ params }: { params: Promise<{ appId: string }> }) {
   const { appId } = await params;
-  const [{ app }, { t }] = await Promise.all([requireApp(appId), getMessages()]);
+  const [{ app }, { t, locale }] = await Promise.all([requireApp(appId), getMessages()]);
   return (
     <main className="mx-auto max-w-[760px] px-5 py-8 sm:px-8">
-      <SettingsForm app={app} t={t} roadmapUrl={`${appUrl()}/roadmap/${app.slug}`} />
+      <SettingsForm app={app} t={t} locale={locale} roadmapUrl={`${appUrl()}/roadmap/${app.slug}`} />
     </main>
   );
 }

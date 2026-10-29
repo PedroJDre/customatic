@@ -10,6 +10,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ appI
   if (!app) return Response.json({ error: "unknown_app" }, { status: 404, headers });
   return Response.json(
     { name: app.name, ...app.widget },
-    { headers: { ...headers, "Cache-Control": "public, max-age=60, s-maxage=300" } },
+    { headers: { ...headers, "Cache-Control": "public, max-age=30, s-maxage=30" } },
   );
 }

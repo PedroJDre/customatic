@@ -18,6 +18,10 @@ type Settings = {
   language: "auto" | Lang;
   label: string;
   askEmail: "optional" | "required" | "hidden";
+  title?: string;
+  subtitle?: string;
+  thanksTitle?: string;
+  thanksBody?: string;
 };
 
 declare global {
@@ -123,13 +127,13 @@ function boot() {
   function panel(): string {
     const s = t();
     if (state.done) {
-      return `<div class="panel" id="cm-panel" role="dialog" aria-label="${s.title}">
+      return `<div class="panel" id="cm-panel" role="dialog" aria-label="${escapeHtml(settings.title || s.title)}">
         <span class="grabber" aria-hidden="true"></span>
         <header class="head"><div></div><button type="button" class="x" data-action="close" aria-label="${s.close}">${icon("close", 18)}</button></header>
         <div class="done" tabindex="-1">
           <div class="done-mark">${icon("comment", 28)}</div>
-          <h2>${s.thanks}</h2>
-          <p>${state.type && identity.email ? s.thanksReply : s.thanksBody}</p>
+          <h2>${escapeHtml(settings.thanksTitle || s.thanks)}</h2>
+          <p>${escapeHtml(settings.thanksBody || (identity.email ? s.thanksReply : s.thanksBody))}</p>
           <button class="primary" data-action="again">${s.sendAnother}</button>
         </div></div>`;
     }
@@ -159,9 +163,10 @@ function boot() {
           <input name="website" tabindex="-1" autocomplete="off" class="hp" aria-hidden="true">
         </form>`
       : "";
-    return `<div class="panel" id="cm-panel" role="dialog" aria-label="${s.title}">
+    return `<div class="panel" id="cm-panel" role="dialog" aria-label="${escapeHtml(settings.title || s.title)}">
       <span class="grabber" aria-hidden="true"></span>
-      <header class="head"><div><h2>${s.title}</h2><p>${s.subtitle}</p></div>
+      <header class="head"><div><h2>${escapeHtml(settings.title || s.title)}</h2>
+        <p>${escapeHtml(settings.subtitle || s.subtitle)}</p></div>
         <button type="button" class="x" data-action="close" aria-label="${s.close}">${icon("close", 18)}</button></header>
       <div class="types" role="group" aria-label="${s.pickType}">${typeButtons}</div>
       ${form}
