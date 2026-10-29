@@ -38,10 +38,10 @@ export function css(accent: string, side: "left" | "right"): string {
   .panel.enter { animation: sheet .22s ease-out; }
   .grabber { display: block; }
   /* 16px stops iOS Safari from zooming the page when a field gets focus. */
-  textarea, input[type=email] { font-size: 16px; }
-  .type { padding: 11px 12px; }
-  .primary { height: 48px; }
-  .ghost { height: 38px; }
+  .panel textarea, .panel input[type=email] { font-size: 16px; }
+  .panel .type { padding: 11px 12px; }
+  .panel .primary { height: 48px; }
+  .panel .ghost { height: 38px; }
 }
 @keyframes sheet { from { transform: translateY(100%); } }
 @keyframes fade { from { opacity: 0; } }
