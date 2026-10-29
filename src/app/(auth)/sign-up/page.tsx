@@ -8,8 +8,8 @@ import { SocialButtons } from "../social-buttons";
 
 export const metadata: Metadata = { title: "Create account" };
 
-export default async function Page({ searchParams }: { searchParams: Promise<{ next?: string; error?: string }> }) {
-  const { next, error } = await searchParams;
+export default async function Page({ searchParams }: { searchParams: Promise<{ next?: string; error?: string; provider?: string }> }) {
+  const { next, error, provider } = await searchParams;
   const target = next?.startsWith("/") && !next.startsWith("//") ? next : "/dashboard";
   if (await getSession()) redirect(next?.startsWith("/") ? next : "/dashboard");
   const { t } = await getMessages();
@@ -17,7 +17,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ n
     <>
       <h1 className="text-[26px] leading-tight font-bold tracking-[-0.02em]">{t.auth.signUpTitle}</h1>
       <p className="mt-2 mb-7 text-[15px] text-muted">{t.auth.signUpLead}</p>
-      <SocialButtons providers={enabledSocialProviders()} t={t} target={target} error={error} />
+      <SocialButtons providers={enabledSocialProviders()} t={t} target={target} error={error} provider={provider} />
       <AuthForm mode="sign-up" t={t} next={next} />
     </>
   );

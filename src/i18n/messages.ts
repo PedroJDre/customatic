@@ -32,6 +32,7 @@ const en = {
     continueWith: "Continue with {provider}",
     orEmail: "or with your email",
     socialFailed: "Signing in with {provider} didn't work. Try again or use your email.",
+    notLinked: "There's already an account with this email, created with a password. Sign in below with your email and password.",
   },
   nav: {
     inbox: "Inbox",
@@ -227,6 +228,7 @@ const es: DeepString<Dict> = {
     continueWith: "Continuar con {provider}",
     orEmail: "o con tu email",
     socialFailed: "No se pudo ingresar con {provider}. Probá de nuevo o usá tu email.",
+    notLinked: "Ya hay una cuenta con este email, creada con contraseña. Ingresá abajo con tu email y contraseña.",
   },
   nav: {
     inbox: "Bandeja",

@@ -29,7 +29,11 @@ function Mark({ provider }: { provider: SocialProvider }) {
 }
 
 /** "Continue with Google / GitHub". The provider sends the user back to `target` once signed in. */
-export function SocialButtons({ providers, t, target, error }: { providers: SocialProvider[]; t: Messages; target: string; error?: string }) {
+/**
+ * After a failed sign-in, the provider sends the user to /sign-in?provider=…&error=… (Better Auth adds `error`).
+ * "account_not_linked": an account with that email exists but its email was never verified, so it can't be joined.
+ */
+export function SocialButtons({ providers, t, target, error, provider: returnedFrom }: { providers: SocialProvider[]; t: Messages; target: string; error?: string; provider?: string }) {
   const [pending, setPending] = useState<SocialProvider | null>(null);
   const [failed, setFailed] = useState<SocialProvider | null>(null);
   if (providers.length === 0) return null;
@@ -41,7 +45,7 @@ export function SocialButtons({ providers, t, target, error }: { providers: Soci
       provider,
       callbackURL: target,
       newUserCallbackURL: target,
-      errorCallbackURL: `/sign-in?error=${provider}`,
+      errorCallbackURL: `/sign-in?provider=${provider}`,
     });
     if (result?.error) {
       setPending(null);
@@ -49,7 +53,12 @@ export function SocialButtons({ providers, t, target, error }: { providers: Soci
     }
   }
 
-  const failedProvider = failed ?? (error === "google" || error === "github" ? error : null);
+  const failedProvider = failed ?? (error && (returnedFrom === "google" || returnedFrom === "github") ? returnedFrom : null);
+  const message = !failedProvider
+    ? null
+    : error === "account_not_linked" && !failed
+      ? t.auth.notLinked
+      : format(t.auth.socialFailed, { provider: NAMES[failedProvider] });
   return (
     <div className="grid gap-2.5">
       {providers.map((provider) => (
@@ -58,9 +67,9 @@ export function SocialButtons({ providers, t, target, error }: { providers: Soci
           {pending === provider ? t.common.loading : format(t.auth.continueWith, { provider: NAMES[provider] })}
         </button>
       ))}
-      {failedProvider && (
+      {message && (
         <p role="alert" className="rounded-lg bg-problem-soft px-3 py-2 text-[13.5px] text-problem-ink">
-          {format(t.auth.socialFailed, { provider: NAMES[failedProvider] })}
+          {message}
         </p>
       )}
       <div className="my-2 flex items-center gap-3 text-[12.5px] text-faint" aria-hidden="true">
