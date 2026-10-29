@@ -187,7 +187,7 @@ export function Detail({ item, app, members, t, locale, backHref }: Props) {
                 <li key={r.id} className="rounded-xl bg-brand-soft/60 p-4">
                   <p className="mb-1 text-[12.5px] text-muted">
                     <b className="font-semibold text-ink">{r.author ?? "—"}</b> · {dateTime(r.createdAt, locale)}
-                    {r.emailStatus !== "sent" && <span className="ml-2 text-warn">({r.emailStatus === "skipped" ? "not emailed" : "email failed"})</span>}
+                    {r.emailStatus !== "sent" && <span className="ml-2 text-warn">({r.emailStatus === "skipped" ? t.detail.notEmailed : t.detail.emailFailed})</span>}
                   </p>
                   <p className="text-[14px] whitespace-pre-wrap">{r.body}</p>
                 </li>
