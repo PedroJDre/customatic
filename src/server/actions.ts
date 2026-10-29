@@ -63,6 +63,7 @@ export async function createApp(_prev: ActionState, form: FormData): Promise<Act
     allowedOrigins: domains,
     widget: defaultWidgetSettings,
   });
+  revalidatePath("/dashboard", "layout"); // the sidebar lists the new app
   redirect(`/dashboard/${id}/install`);
 }
 
@@ -167,6 +168,7 @@ export async function deleteApp(appId: string, _prev: ActionState, form: FormDat
   if (role === "member") return { error: "Only owners and admins can delete apps." };
   if (String(form.get("confirm") ?? "").trim() !== app.name) return { error: `Type "${app.name}" to confirm.` };
   await db.delete(apps).where(eq(apps.id, app.id));
+  revalidatePath("/dashboard", "layout");
   redirect("/dashboard");
 }
 
@@ -212,6 +214,7 @@ export async function removeMember(memberId: string) {
 export async function acceptInvitation(invitationId: string) {
   await requireUser();
   await auth.api.acceptInvitation({ body: { invitationId }, headers: await headers() });
+  revalidatePath("/dashboard", "layout");
   redirect("/dashboard");
 }
 

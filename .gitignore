@@ -42,3 +42,5 @@ next-env.d.ts
 .data/
 public/widget*.js
 !.env.example
+
+.vercel

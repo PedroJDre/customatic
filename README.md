@@ -4,6 +4,8 @@
 
 # Customatic
 
+**[Live demo →](https://customatic.vercel.app)**
+
 **An open-source feedback widget for web apps.** One script tag puts a feedback button on your site. Users report problems, ideas and comments in a few seconds, and every report reaches your team with the page, the device and a screenshot.
 
 [![CI](https://github.com/PedroJDre/customatic/actions/workflows/ci.yml/badge.svg)](https://github.com/PedroJDre/customatic/actions/workflows/ci.yml)
