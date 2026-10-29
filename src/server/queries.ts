@@ -11,9 +11,10 @@ export type InboxFilters = {
 export function parseFilters(params: Record<string, string | string[] | undefined>): InboxFilters {
   const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
   const type = one(params.type);
+  const isType = (v: string | undefined): v is FeedbackType => v === "problem" || v === "suggestion" || v === "comment" || v === "rating";
   const status = one(params.status);
   return {
-    type: type === "problem" || type === "suggestion" || type === "comment" ? type : undefined,
+    type: isType(type) ? type : undefined,
     status:
       status === "todo" || status === "in_progress" || status === "done" || status === "all" ? status : "open",
     q: one(params.q)?.trim().slice(0, 100) || undefined,
@@ -53,6 +54,8 @@ export async function listInbox(db: Database, appId: string, f: InboxFilters, li
         pagePath: feedback.pagePath,
         device: feedback.device,
         hasScreenshot: feedback.hasScreenshot,
+        survey: feedback.survey,
+        score: feedback.score,
         createdAt: feedback.createdAt,
         assigneeName: user.name,
       })
@@ -67,7 +70,7 @@ export async function listInbox(db: Database, appId: string, f: InboxFilters, li
       .where(where(appId, f, "type"))
       .groupBy(feedback.type),
   ]);
-  const counts = { all: 0, problem: 0, suggestion: 0, comment: 0 };
+  const counts = { all: 0, problem: 0, suggestion: 0, comment: 0, rating: 0 };
   for (const row of typeCounts) {
     counts[row.type] = Number(row.n);
     counts.all += Number(row.n);
@@ -115,7 +118,7 @@ export async function analytics(db: Database, appId: string, days = 30) {
         n: count(),
       })
       .from(feedback)
-      .where(recent)
+      .where(and(recent, ne(feedback.type, "rating")))
       .groupBy(sql`1`, feedback.type),
     db
       .select({ page: feedback.pagePath, n: count() })
@@ -144,9 +147,10 @@ export async function analytics(db: Database, appId: string, days = 30) {
   const index = new Map(series.map((s) => [s.day, s]));
   for (const row of perDay) {
     const slot = index.get(row.day);
-    if (slot) slot[row.type] = Number(row.n);
+    if (slot && row.type !== "rating") slot[row.type] = Number(row.n);
   }
-  const total = series.reduce((sum, s) => sum + s.problem + s.suggestion + s.comment, 0);
+  // Everything received in the period, survey answers included (the daily chart shows reports only).
+  const total = byStatus.reduce((sum, r) => sum + Number(r.n), 0);
   return {
     total,
     series,
@@ -170,4 +174,55 @@ export async function roadmapItems(db: Database, appId: string) {
     .from(feedback)
     .where(and(eq(feedback.appId, appId), eq(feedback.onRoadmap, true)))
     .orderBy(desc(sql`4`), desc(feedback.createdAt));
+}
+
+export type SurveyStats = {
+  survey: "nps" | "csat" | "ces";
+  responses: number;
+  /** count per score, index = score */
+  distribution: { score: number; n: number }[];
+  /** NPS: −100..100. CSAT: % of 4–5. CES: average. */
+  headline: number;
+  average: number;
+  /** NPS: promoters/passives/detractors. CSAT and CES: share of good answers (%). */
+  groups?: { promoters: number; passives: number; detractors: number };
+  goodShare: number;
+};
+
+/** Survey results of the last `days` days, one entry per survey kind that has answers. */
+export async function surveyStats(db: Database, appId: string, days = 30): Promise<SurveyStats[]> {
+  const since = new Date(Date.now() - days * 86_400_000);
+  const rows = await db
+    .select({ survey: feedback.survey, score: feedback.score, n: count() })
+    .from(feedback)
+    .where(and(eq(feedback.appId, appId), eq(feedback.type, "rating"), gte(feedback.createdAt, since), isNotNull(feedback.score)))
+    .groupBy(feedback.survey, feedback.score);
+  const scales = { nps: [0, 10], csat: [1, 5], ces: [1, 7] } as const;
+  const result: SurveyStats[] = [];
+  for (const survey of ["nps", "csat", "ces"] as const) {
+    const mine = rows.filter((r) => r.survey === survey && r.score !== null);
+    const responses = mine.reduce((sum, r) => sum + Number(r.n), 0);
+    if (!responses) continue;
+    const [min, max] = scales[survey];
+    const distribution = Array.from({ length: max - min + 1 }, (_, i) => ({
+      score: min + i,
+      n: Number(mine.find((r) => r.score === min + i)?.n ?? 0),
+    }));
+    const total = distribution.reduce((sum, d) => sum + d.score * d.n, 0);
+    const average = Math.round((total / responses) * 10) / 10;
+    const share = (pred: (s: number) => boolean) =>
+      distribution.filter((d) => pred(d.score)).reduce((sum, d) => sum + d.n, 0);
+    if (survey === "nps") {
+      const promoters = share((s) => s >= 9);
+      const detractors = share((s) => s <= 6);
+      const passives = responses - promoters - detractors;
+      const headline = Math.round(((promoters - detractors) / responses) * 100);
+      result.push({ survey, responses, distribution, headline, average, groups: { promoters, passives, detractors }, goodShare: Math.round((promoters / responses) * 100) });
+    } else {
+      const good = share((s) => (survey === "csat" ? s >= 4 : s >= 5));
+      const goodShare = Math.round((good / responses) * 100);
+      result.push({ survey, responses, distribution, headline: survey === "csat" ? goodShare : average, average, goodShare });
+    }
+  }
+  return result;
 }

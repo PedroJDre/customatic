@@ -46,6 +46,9 @@ export function css(accent: string, side: "left" | "right"): string {
   .panel .type { padding: 11px 12px; }
   .panel .primary { height: 48px; }
   .panel .ghost { height: 38px; }
+  /* 11 NPS buttons don't fit one row on a phone: 0–5 and 6–10, each big enough to tap. */
+  .panel .scale-nps { grid-template-columns: repeat(6, 1fr); gap: 6px; }
+  .panel .score { height: 44px; font-size: 15px; }
 }
 @keyframes sheet { from { transform: translateY(100%); } }
 @keyframes fade { from { opacity: 0; } }
@@ -98,6 +101,20 @@ figure img { width: 84px; height: 54px; object-fit: cover; border-radius: 6px; b
   height: 42px; border: 0; border-radius: 10px; background: ${accent}; color: #fff; font: inherit; font-weight: 600; cursor: pointer;
 }
 .primary:disabled { opacity: .6; cursor: progress; }
+.scale { display: grid; gap: 5px; margin-top: 2px; }
+.scale-nps { grid-template-columns: repeat(11, 1fr); gap: 4px; }
+.scale-csat { grid-template-columns: repeat(5, 1fr); }
+.scale-ces { grid-template-columns: repeat(7, 1fr); }
+.score {
+  height: 40px; border: 1.5px solid #e4e6ef; border-radius: 9px; background: #fff; color: #141733;
+  font: inherit; font-weight: 600; font-size: 14px; cursor: pointer; padding: 0;
+}
+.score:hover { border-color: ${accent}; }
+.score[aria-pressed=true] { background: ${accent}; border-color: ${accent}; color: #fff; }
+.scale-labels { display: flex; justify-content: space-between; gap: 12px; margin-top: 6px; color: #5b6079; font-size: 12px; }
+.switch { display: block; margin: 14px auto 0; background: none; border: 0; padding: 6px 4px; color: #3a3f5c; font: inherit; font-size: 13px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.switch:hover { color: ${accent}; }
+.switch.back { margin: 0 0 10px; padding: 4px 0; text-decoration: none; font-weight: 600; }
 .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
 footer { margin-top: 14px; text-align: center; }
 footer a { color: #8a8fa6; font-size: 11.5px; text-decoration: none; }

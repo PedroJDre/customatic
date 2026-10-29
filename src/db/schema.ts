@@ -19,7 +19,9 @@ const bytea = customType<{ data: Buffer; driverData: Buffer }>({
   dataType: () => "bytea",
 });
 
-export const feedbackType = pgEnum("feedback_type", ["problem", "suggestion", "comment"]);
+// "rating" = an answer to the app's survey (NPS, CSAT or CES), with a score.
+export const feedbackType = pgEnum("feedback_type", ["problem", "suggestion", "comment", "rating"]);
+export const surveyKind = pgEnum("survey_kind", ["nps", "csat", "ces"]);
 export const feedbackStatus = pgEnum("feedback_status", ["todo", "in_progress", "done"]);
 export const emailStatus = pgEnum("email_status", ["sent", "skipped", "failed"]);
 
@@ -29,14 +31,21 @@ export type WidgetSettings = {
   language: "auto" | "en" | "es";
   label: string;
   askEmail: "optional" | "required" | "hidden";
+  /** Survey shown when the widget opens. Missing = "nps" (the default); "none" = only problems, ideas and comments. */
+  survey?: "nps" | "csat" | "ces" | "none";
   /** Custom copy. Empty = the default text in the visitor's language. */
   title?: string;
   subtitle?: string;
   thanksTitle?: string;
   thanksBody?: string;
+  question?: string;
 };
 
-export const WIDGET_TEXT_LIMITS = { label: 28, title: 60, subtitle: 140, thanksTitle: 60, thanksBody: 200 } as const;
+export const WIDGET_TEXT_LIMITS = { label: 28, title: 60, subtitle: 140, thanksTitle: 60, thanksBody: 200, question: 120 } as const;
+
+/** Score range per survey. NPS 0–10, CSAT 1–5, CES 1–7. */
+export const SURVEY_SCALES = { nps: [0, 10], csat: [1, 5], ces: [1, 7] } as const;
+export type SurveyKind = keyof typeof SURVEY_SCALES;
 
 export const defaultWidgetSettings: WidgetSettings = {
   color: "#2433F5",
@@ -44,6 +53,7 @@ export const defaultWidgetSettings: WidgetSettings = {
   language: "auto",
   label: "",
   askEmail: "optional",
+  survey: "nps",
 };
 
 /** A website or product that collects feedback. Belongs to a workspace (Better Auth organization). */
@@ -89,6 +99,8 @@ export const feedback = pgTable(
     language: text("language"),
     metadata: jsonb("metadata").$type<Record<string, string | number | boolean>>(),
     hasScreenshot: boolean("has_screenshot").notNull().default(false),
+    survey: surveyKind("survey"),
+    score: integer("score"),
     assigneeId: text("assignee_id").references(() => user.id, { onDelete: "set null" }),
     onRoadmap: boolean("on_roadmap").notNull().default(false),
     roadmapTitle: text("roadmap_title"),

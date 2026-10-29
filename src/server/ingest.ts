@@ -3,7 +3,7 @@ import { eq, sql } from "drizzle-orm";
 import { UAParser } from "ua-parser-js";
 import { z } from "zod";
 import type { Database } from "@/db";
-import { apps, feedback, screenshots, type App } from "@/db/schema";
+import { apps, feedback, screenshots, SURVEY_SCALES, type App } from "@/db/schema";
 import { newId } from "./ids";
 import { originAllowed } from "./origins";
 import { hit } from "./rate-limit";
@@ -14,8 +14,11 @@ const metadataValue = z.union([z.string().max(500), z.number(), z.boolean()]);
 
 export const feedbackInput = z.object({
   appId: z.string().min(3).max(64),
-  type: z.enum(["problem", "suggestion", "comment"]),
-  message: z.string().trim().min(2, "Write a few words").max(5000),
+  type: z.enum(["problem", "suggestion", "comment", "rating"]),
+  // Survey answers can come without a comment; reports need words.
+  message: z.string().trim().max(5000).default(""),
+  survey: z.enum(["nps", "csat", "ces"]).optional(),
+  score: z.number().int().optional(),
   email: z
     .string()
     .trim()
@@ -103,6 +106,17 @@ export async function ingestFeedback(db: Database, raw: unknown, meta: RequestMe
   }
   const input = parsed.data;
   if (input.website) throw new IngestError(400, "rejected", "Rejected.");
+  if (input.type === "rating") {
+    if (!input.survey || input.score === undefined) {
+      throw new IngestError(400, "invalid_input", "A survey answer needs `survey` and `score`.");
+    }
+    const [min, max] = SURVEY_SCALES[input.survey];
+    if (input.score < min || input.score > max) {
+      throw new IngestError(400, "invalid_input", `score: ${input.survey.toUpperCase()} scores go from ${min} to ${max}.`);
+    }
+  } else if (input.message.length < 2) {
+    throw new IngestError(400, "invalid_input", "message: Write a few words");
+  }
 
   const app = await findApp(db, input.appId);
   if (!app) throw new IngestError(404, "unknown_app", "No app with this id. Check data-app-id in your script tag.");
@@ -144,6 +158,10 @@ export async function ingestFeedback(db: Database, raw: unknown, meta: RequestMe
       language: input.language ?? null,
       metadata: input.metadata ?? null,
       hasScreenshot: Boolean(shot),
+      // A score with no comment has nothing to act on, so it doesn't sit in the open queue.
+      status: input.type === "rating" && !input.message ? "done" : "todo",
+      survey: input.type === "rating" ? input.survey : null,
+      score: input.type === "rating" ? input.score : null,
       ...describeDevice(meta.userAgent),
     });
     if (shot) await tx.insert(screenshots).values({ feedbackId: id, ...shot });

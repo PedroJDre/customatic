@@ -155,6 +155,8 @@ export async function updateAppSettings(appId: string, _prev: ActionState, form:
     subtitle: text("subtitle"),
     thanksTitle: text("thanksTitle"),
     thanksBody: text("thanksBody"),
+    question: text("question"),
+    survey: (["nps", "csat", "ces", "none"] as const).find((v) => v === form.get("survey")) ?? "nps",
   };
   await db
     .update(apps)

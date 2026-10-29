@@ -21,7 +21,8 @@
 ## What you get
 
 **For your users: a widget that stays out of the way**
-- A floating button. Users pick **problem**, **idea** or **comment**, type, and send. No account needed.
+- A floating button that opens with a **survey: NPS (default), CSAT or CES**, then asks why. Pick the survey per app, or turn it off.
+- Users can also report a **problem**, **idea** or **comment**, type, and send. No account needed.
 - One-click **page capture**, or they can attach their own image.
 - Speaks **English and Spanish**, picked from the visitor's browser.
 - **16 KB** (6 KB gzipped), no dependencies, and isolated in a Shadow DOM, so your CSS can't break it and it can't break your page. The capture code only loads when someone uses it.
@@ -31,7 +32,8 @@
 - Each report shows the **page URL, browser, OS, device, screen size, language, screenshot**, plus any data your app passes.
 - **To do → In progress → Done**, with a teammate assigned.
 - **Reply by email** from the dashboard, with the thread saved.
-- **Analytics**: reports per day, pages with the most problems, devices, and median time to resolve.
+- **Analytics**: your **NPS** (promoters minus detractors), **CSAT** (% satisfied) or **average CES**, the spread of answers, reports per day, pages with the most problems, devices, and median time to resolve.
+- **Every text is editable** from Settings: the button, the survey question, titles and the thank-you message.
 - **Public roadmap**: publish ideas, show what's planned and shipped, and let visitors vote.
 - **Sign in with Google, GitHub or email**, plus **workspaces and teammates** through email invitations.
 

@@ -11,7 +11,7 @@ export default async function AppLayout({ children, params }: { children: React.
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-[22px] font-bold tracking-[-0.02em]">{app.name}</h1>
           {app.roadmapEnabled && (
-            <a href={`/roadmap/${app.slug}`} target="_blank" className="text-[13.5px] font-semibold text-brand hover:underline">
+            <a href={`/roadmap/${app.slug}`} target="_blank" className="inline-flex min-h-8 items-center text-[13.5px] font-semibold text-brand hover:underline">
               {t.nav.roadmap}
             </a>
           )}

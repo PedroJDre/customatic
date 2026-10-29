@@ -4,9 +4,10 @@ import Link from "next/link";
 import { useActionState, useEffect, useRef, useState, useTransition } from "react";
 import type { FeedbackStatus } from "@/db/schema";
 import type { Messages } from "@/i18n/messages";
-import { dateTime } from "@/lib/time";
 import { deleteFeedback, replyToFeedback, updateFeedback, type ActionState } from "@/server/actions";
 import type { FeedbackDetail } from "@/server/queries";
+import { LocalTime } from "@/components/local-time";
+import { ScoreBadge } from "@/components/score-badge";
 import { TypeBadge } from "@/components/type-badge";
 
 type Props = {
@@ -35,7 +36,7 @@ export function Detail({ item, app, members, t, locale, backHref }: Props) {
   const patch = (data: Parameters<typeof updateFeedback>[2]) => start(() => updateFeedback(app.id, item.id, data));
 
   const facts: [string, React.ReactNode][] = [
-    [t.detail.received, dateTime(item.createdAt, locale)],
+    [t.detail.received, <LocalTime key="received" date={item.createdAt} locale={locale} />],
     [t.auth.email, item.email ? <a href={`mailto:${item.email}`} className="text-brand hover:underline">{item.email}</a> : t.inbox.anonymous],
     [
       t.detail.page,
@@ -63,7 +64,14 @@ export function Detail({ item, app, members, t, locale, backHref }: Props) {
         <TypeBadge type={item.type} label={t.types[item.type]} />
         <span className="text-[13px] font-semibold text-faint">#{item.number}</span>
       </div>
-      <p className="mt-3 text-[17px] leading-relaxed whitespace-pre-wrap text-ink">{item.message}</p>
+      {item.type === "rating" && item.survey && item.score !== null && (
+        <div className="mt-4">
+          <ScoreBadge survey={item.survey} score={item.score} t={t} large />
+        </div>
+      )}
+      <p className={`mt-3 text-[17px] leading-relaxed whitespace-pre-wrap ${item.message ? "text-ink" : "text-muted"}`}>
+        {item.message || t.surveys.noComment}
+      </p>
 
       <div className="mt-6 flex flex-wrap items-end gap-4 border-y border-line py-4">
         <div>
@@ -101,7 +109,7 @@ export function Detail({ item, app, members, t, locale, backHref }: Props) {
         </div>
         <button
           type="button"
-          className="ml-auto text-[13px] font-semibold text-muted hover:text-problem-ink"
+          className="ml-auto inline-flex min-h-9 items-center px-1 text-[13px] font-semibold text-muted hover:text-problem-ink"
           onClick={() => {
             if (confirm(t.detail.deleteConfirm)) start(() => deleteFeedback(app.id, item.id));
           }}
@@ -186,7 +194,7 @@ export function Detail({ item, app, members, t, locale, backHref }: Props) {
               {item.replies.map((r) => (
                 <li key={r.id} className="rounded-xl bg-brand-soft/60 p-4">
                   <p className="mb-1 text-[12.5px] text-muted">
-                    <b className="font-semibold text-ink">{r.author ?? "—"}</b> · {dateTime(r.createdAt, locale)}
+                    <b className="font-semibold text-ink">{r.author ?? "—"}</b> · <LocalTime date={r.createdAt} locale={locale} />
                     {r.emailStatus !== "sent" && <span className="ml-2 text-warn">({r.emailStatus === "skipped" ? t.detail.notEmailed : t.detail.emailFailed})</span>}
                   </p>
                   <p className="text-[14px] whitespace-pre-wrap">{r.body}</p>

@@ -32,7 +32,7 @@ describe("inbox and analytics", () => {
   it("filters by type, status and search, and counts per type", async () => {
     const open = await listInbox(db, "app_test", parseFilters({}));
     expect(open.items).toHaveLength(4); // "done" is hidden by default
-    expect(open.counts).toEqual({ all: 4, problem: 2, suggestion: 1, comment: 1 });
+    expect(open.counts).toEqual({ all: 4, problem: 2, suggestion: 1, comment: 1, rating: 0 });
 
     const problems = await listInbox(db, "app_test", parseFilters({ type: "problem", status: "all" }));
     expect(problems.items.map((i) => i.message).sort()).toEqual(["App crashes on checkout", "Checkout button frozen", "Search is slow"]);

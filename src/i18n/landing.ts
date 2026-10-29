@@ -46,8 +46,8 @@ export const landing = {
     features: {
       title: "Built for small teams that ship often",
       items: [
-        { title: "Inbox by type", body: "Problems, ideas and comments apart, with search across messages, emails and pages." },
-        { title: "To do, in progress, done", body: "A status on every report, and a teammate assigned so nothing falls through." },
+        { title: "NPS, CSAT or CES", body: "The widget opens with the survey you choose. Track the score over time, and read why people gave it." },
+        { title: "One inbox, sorted", body: "Problems, ideas, comments and survey answers apart, each with a status and a teammate assigned." },
         { title: "Reply by email", body: "Answer from the dashboard. The user gets an email and you keep the thread." },
         { title: "Analytics", body: "Reports per day, pages with the most problems, devices, and how long you take to resolve." },
         { title: "Public roadmap", body: "Pick ideas to publish, show what's planned and shipped, and let visitors vote." },
@@ -109,8 +109,8 @@ export const landing = {
     features: {
       title: "Hecho para equipos chicos que publican seguido",
       items: [
-        { title: "Bandeja por tipo", body: "Problemas, ideas y comentarios por separado, con búsqueda en mensajes, emails y páginas." },
-        { title: "Por hacer, en curso, hecho", body: "Cada reporte con su estado y un responsable asignado, para que nada se pierda." },
+        { title: "NPS, CSAT o CES", body: "El widget se abre con la encuesta que elijas. Seguí el puntaje en el tiempo y leé por qué lo dieron." },
+        { title: "Una bandeja ordenada", body: "Problemas, ideas, comentarios y respuestas de encuesta por separado, cada uno con su estado y un responsable." },
         { title: "Respuesta por email", body: "Contestá desde el dashboard. El usuario recibe un email y vos guardás el hilo." },
         { title: "Métricas", body: "Reportes por día, páginas con más problemas, dispositivos y cuánto tardás en resolver." },
         { title: "Roadmap público", body: "Elegí qué ideas publicar, mostrá lo planeado y lo lanzado, y dejá que voten." },

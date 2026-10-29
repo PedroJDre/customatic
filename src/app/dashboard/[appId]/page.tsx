@@ -6,6 +6,7 @@ import { getMessages } from "@/i18n/server";
 import { timeAgo } from "@/lib/time";
 import { requireApp } from "@/server/access";
 import { getFeedback, listInbox, listMembers, parseFilters, type InboxFilters } from "@/server/queries";
+import { ScoreBadge } from "@/components/score-badge";
 import { TypeIcon, typeColor } from "@/components/type-badge";
 import { Detail } from "./detail";
 
@@ -42,6 +43,7 @@ export default async function InboxPage({ params, searchParams }: { params: Prom
     { key: "problem", label: t.typesPlural.problem, n: counts.problem },
     { key: "suggestion", label: t.typesPlural.suggestion, n: counts.suggestion },
     { key: "comment", label: t.typesPlural.comment, n: counts.comment },
+    { key: "rating", label: t.typesPlural.rating, n: counts.rating },
   ];
   const statusOptions = [
     { key: "open", label: t.inbox.open },
@@ -113,11 +115,17 @@ export default async function InboxPage({ params, searchParams }: { params: Prom
                 >
                   <span className="absolute top-3 bottom-3 left-0 w-[3px] rounded-r" style={{ background: typeColor[item.type] }} aria-hidden />
                   <div className="mb-1 flex items-center gap-2 text-[12.5px]">
-                    <span className="font-semibold text-ink-2">{t.types[item.type]}</span>
+                    {item.type === "rating" && item.survey && item.score !== null ? (
+                      <ScoreBadge survey={item.survey} score={item.score} t={t} />
+                    ) : (
+                      <span className="font-semibold text-ink-2">{t.types[item.type]}</span>
+                    )}
                     <span className="text-faint">#{item.number}</span>
                     <span className="ml-auto text-faint">{timeAgo(item.createdAt, locale)}</span>
                   </div>
-                  <p className={`line-clamp-2 text-[14px] leading-snug ${item.status === "done" ? "text-muted" : "text-ink"}`}>{item.message}</p>
+                  <p className={`line-clamp-2 text-[14px] leading-snug ${item.status === "done" || !item.message ? "text-muted" : "text-ink"}`}>
+                    {item.message || <i className="not-italic text-faint">{t.surveys.noComment}</i>}
+                  </p>
                   <div className="mt-1.5 flex items-center gap-2 text-[12.5px] text-muted">
                     <span className="truncate">{item.email ?? t.inbox.anonymous}</span>
                     {item.pagePath && <span className="truncate text-faint">{item.pagePath}</span>}

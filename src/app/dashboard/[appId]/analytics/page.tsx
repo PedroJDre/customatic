@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { db } from "@/db";
 import { getMessages } from "@/i18n/server";
 import { requireApp } from "@/server/access";
-import { analytics } from "@/server/queries";
+import { analytics, surveyStats } from "@/server/queries";
 import { DailyChart } from "./daily-chart";
+import { SurveyCard } from "./survey-card";
 
 export const metadata: Metadata = { title: "Analytics" };
 
@@ -28,7 +29,7 @@ function Bars({ rows, color, empty }: { rows: { label: string; n: number }[]; co
 export default async function AnalyticsPage({ params }: { params: Promise<{ appId: string }> }) {
   const { appId } = await params;
   const [{ app }, { t, locale }] = await Promise.all([requireApp(appId), getMessages()]);
-  const data = await analytics(db, app.id);
+  const [data, surveys] = await Promise.all([analytics(db, app.id), surveyStats(db, app.id)]);
   const a = t.analytics;
   const median =
     data.medianHours == null ? "—" : data.medianHours < 48 ? `${Math.max(1, Math.round(data.medianHours))} ${a.hours}` : `${Math.round(data.medianHours / 24)} ${a.days}`;
@@ -56,6 +57,12 @@ export default async function AnalyticsPage({ params }: { params: Promise<{ appI
           </div>
         ))}
       </dl>
+      {surveys.map((stats) => (
+        <SurveyCard key={stats.survey} stats={stats} t={t} />
+      ))}
+      {surveys.length === 0 && (app.widget.survey ?? "nps") !== "none" && (
+        <p className="card p-5 text-[14px] text-muted">{a.noSurvey}</p>
+      )}
       <section className="card p-5 sm:p-6">
         <DailyChart data={data.series} labels={t.typesPlural} locale={locale} title={a.perDay} tableLabel={a.table} dayLabel={a.day} />
       </section>

@@ -22,7 +22,12 @@ type Settings = {
   subtitle?: string;
   thanksTitle?: string;
   thanksBody?: string;
+  question?: string;
+  survey?: Survey | "none";
 };
+
+type Survey = "nps" | "csat" | "ces";
+const SCALES: Record<Survey, [number, number]> = { nps: [0, 10], csat: [1, 5], ces: [1, 7] };
 
 declare global {
   interface Window {
@@ -91,8 +96,21 @@ function boot() {
     askEmail: "optional",
   };
   let identity: Record<string, string | number | boolean> = {};
-  let state: { open: boolean; type: FeedbackType | null; sending: boolean; done: boolean; error: string; shot: string | null } =
-    { open: false, type: null, sending: false, done: false, error: "", shot: null };
+  let state: {
+    open: boolean;
+    mode: "survey" | "feedback";
+    score: number | null;
+    type: FeedbackType | null;
+    sending: boolean;
+    done: boolean;
+    error: string;
+    shot: string | null;
+  } = { open: false, mode: "survey", score: null, type: null, sending: false, done: false, error: "", shot: null };
+  /** The survey this app runs: NPS unless the team picked another one or turned it off. */
+  const survey = (): Survey | null => {
+    const kind = settings.survey ?? "nps";
+    return kind === "none" ? null : kind;
+  };
   let justOpened = false; // play the opening animation once, not on every re-render
 
   const host = document.createElement("div");
@@ -137,6 +155,8 @@ function boot() {
           <button class="primary" data-action="again">${s.sendAnother}</button>
         </div></div>`;
     }
+    const kind = survey();
+    if (state.mode === "survey" && kind) return surveyPanel(kind);
     const types: FeedbackType[] = ["problem", "suggestion", "comment"];
     const typeButtons = types
       .map(
@@ -168,8 +188,44 @@ function boot() {
       <header class="head"><div><h2>${escapeHtml(settings.title || s.title)}</h2>
         <p>${escapeHtml(settings.subtitle || s.subtitle)}</p></div>
         <button type="button" class="x" data-action="close" aria-label="${s.close}">${icon("close", 18)}</button></header>
+      ${kind ? `<button type="button" class="switch back" data-action="to-survey">← ${s.back}</button>` : ""}
       <div class="types" role="group" aria-label="${s.pickType}">${typeButtons}</div>
       ${form}
+      <footer><a href="https://github.com/PedroJDre/customatic" target="_blank" rel="noopener">${s.poweredBy}</a></footer>
+    </div>`;
+  }
+
+  function surveyPanel(kind: Survey): string {
+    const s = t();
+    const [min, max] = SCALES[kind];
+    const question = settings.question || s.questions[kind];
+    const scores = Array.from({ length: max - min + 1 }, (_, i) => min + i)
+      .map(
+        (n) => `<button type="button" class="score" data-score="${n}" aria-pressed="${state.score === n}"
+          aria-label="${s.scoreLabel.replace("{n}", String(n))}">${n}</button>`,
+      )
+      .join("");
+    const form =
+      state.score === null
+        ? ""
+        : `<form novalidate>
+          <label class="field"><span>${s.followUp}</span>
+            <textarea name="message" rows="3" maxlength="5000" placeholder="${s.followUpPlaceholder}"></textarea></label>
+          ${settings.askEmail === "hidden" ? "" : `<label class="field"><span>${s.emailLabel}${settings.askEmail === "required" ? "" : ` <i>${s.optional}</i>`}</span>
+            <input name="email" type="email" autocomplete="email" ${settings.askEmail === "required" ? "required" : ""}
+              value="${escapeHtml(String(identity.email ?? ""))}" placeholder="${s.emailPlaceholder}"></label>`}
+          <p class="error" role="alert">${escapeHtml(state.error)}</p>
+          <button class="primary" type="submit" ${state.sending ? "disabled" : ""}>${state.sending ? s.sending : s.send}</button>
+          <input name="website" tabindex="-1" autocomplete="off" class="hp" aria-hidden="true">
+        </form>`;
+    return `<div class="panel" id="cm-panel" role="dialog" aria-label="${escapeHtml(question)}">
+      <span class="grabber" aria-hidden="true"></span>
+      <header class="head"><div><h2 id="cm-q">${escapeHtml(question)}</h2></div>
+        <button type="button" class="x" data-action="close" aria-label="${s.close}">${icon("close", 18)}</button></header>
+      <div class="scale scale-${kind}" role="group" aria-labelledby="cm-q">${scores}</div>
+      <div class="scale-labels" aria-hidden="true"><span>${s.scaleLow[kind]}</span><span>${s.scaleHigh[kind]}</span></div>
+      ${form}
+      <button type="button" class="switch" data-action="to-report">${s.orReport}</button>
       <footer><a href="https://github.com/PedroJDre/customatic" target="_blank" rel="noopener">${s.poweredBy}</a></footer>
     </div>`;
   }
@@ -185,8 +241,25 @@ function boot() {
         q<HTMLTextAreaElement>("textarea")?.focus();
       };
     });
+    root.querySelectorAll<HTMLButtonElement>("[data-score]").forEach((button) => {
+      button.onclick = () => {
+        state = { ...state, score: Number(button.dataset.score), error: "" };
+        keepDraft(render);
+        root.querySelector<HTMLButtonElement>(`[data-score="${state.score}"]`)?.focus();
+      };
+    });
+    q<HTMLButtonElement>("[data-action=to-report]")?.addEventListener("click", () => {
+      state = { ...state, mode: "feedback", error: "" };
+      render();
+      root.querySelector<HTMLElement>("[data-type]")?.focus();
+    });
+    q<HTMLButtonElement>("[data-action=to-survey]")?.addEventListener("click", () => {
+      state = { ...state, mode: "survey", type: null, error: "" };
+      render();
+      root.querySelector<HTMLElement>("[data-score]")?.focus();
+    });
     q<HTMLButtonElement>("[data-action=again]")?.addEventListener("click", () => {
-      state = { ...state, done: false, type: null, shot: null };
+      state = { ...state, done: false, type: null, shot: null, score: null, mode: survey() ? "survey" : "feedback" };
       render();
     });
     q<HTMLButtonElement>("[data-action=remove-shot]")?.addEventListener("click", () => {
@@ -246,7 +319,9 @@ function boot() {
     const data = new FormData(form);
     const message = String(data.get("message") ?? "").trim();
     const email = String(data.get("email") ?? "").trim();
-    if (message.length < 2) {
+    const kind = survey();
+    const isSurvey = state.mode === "survey" && kind !== null && state.score !== null;
+    if (!isSurvey && message.length < 2) {
       state = { ...state, error: s.errors.message };
       return keepDraft(render);
     }
@@ -263,14 +338,15 @@ function boot() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           appId,
-          type: state.type,
+          type: isSurvey ? "rating" : state.type,
+          ...(isSurvey ? { survey: kind, score: state.score } : {}),
           message,
           email: email || undefined,
           page: { url: location.href, title: document.title },
           viewport: `${innerWidth}x${innerHeight}`,
           language: navigator.language,
           metadata: Object.keys(metadata).length ? metadata : undefined,
-          screenshot: state.shot ?? undefined,
+          screenshot: isSurvey ? undefined : (state.shot ?? undefined),
           website: String(data.get("website") ?? ""),
         }),
       });
@@ -290,9 +366,12 @@ function boot() {
   const api: CustomaticApi = {
     open(type) {
       justOpened = !state.open;
-      state = { ...state, open: true, done: false, type: type ?? state.type };
+      const mode = type || !survey() ? "feedback" : state.open ? state.mode : "survey";
+      state = { ...state, open: true, done: false, mode, type: type ?? state.type };
       render();
-      (root.querySelector<HTMLElement>("textarea") ?? root.querySelector<HTMLElement>("[data-type]"))?.focus();
+      (root.querySelector<HTMLElement>("textarea") ??
+        root.querySelector<HTMLElement>("[data-score]") ??
+        root.querySelector<HTMLElement>("[data-type]"))?.focus();
     },
     close() {
       state = { ...state, open: false, error: "" };

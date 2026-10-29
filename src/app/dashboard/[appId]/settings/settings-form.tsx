@@ -6,7 +6,7 @@ import { strings as widgetStrings } from "@/widget/i18n";
 import type { Messages } from "@/i18n/messages";
 import { deleteApp, updateAppSettings, type ActionState } from "@/server/actions";
 
-const TEXT_FIELDS = ["label", "title", "subtitle", "thanksTitle", "thanksBody"] as const;
+const TEXT_FIELDS = ["label", "question", "title", "subtitle", "thanksTitle", "thanksBody"] as const;
 
 export function SettingsForm({ app, t, roadmapUrl, locale }: { app: App; t: Messages; roadmapUrl: string; locale: "en" | "es" }) {
   const [state, action, pending] = useActionState<ActionState, FormData>(updateAppSettings.bind(null, app.id), null);
@@ -19,10 +19,20 @@ export function SettingsForm({ app, t, roadmapUrl, locale }: { app: App; t: Mess
     subtitle: app.widget.subtitle ?? "",
     thanksTitle: app.widget.thanksTitle ?? "",
     thanksBody: app.widget.thanksBody ?? "",
+    question: app.widget.question ?? "",
   });
+  const [survey, setSurvey] = useState(app.widget.survey ?? "nps");
   // Placeholders and preview show the default copy in the widget's language.
   const w = widgetStrings[language === "auto" ? locale : language];
-  const defaults = { label: w.button, title: w.title, subtitle: w.subtitle, thanksTitle: w.thanks, thanksBody: w.thanksBody };
+  const defaults = {
+    label: w.button,
+    title: w.title,
+    subtitle: w.subtitle,
+    thanksTitle: w.thanks,
+    thanksBody: w.thanksBody,
+    question: survey === "none" ? "" : w.questions[survey],
+  };
+  const scale = survey === "nps" ? 11 : survey === "csat" ? 5 : 7;
   const s = t.settings;
   return (
     <>
@@ -42,6 +52,15 @@ export function SettingsForm({ app, t, roadmapUrl, locale }: { app: App; t: Mess
 
         <section className="card grid gap-5 p-6">
           <h2 className="text-[17px] font-bold">{s.widget}</h2>
+          <div>
+            <label className="label" htmlFor="survey">{s.survey}</label>
+            <select className="input" id="survey" name="survey" value={survey} onChange={(e) => setSurvey(e.target.value as typeof survey)}>
+              {(["nps", "csat", "ces", "none"] as const).map((kind) => (
+                <option key={kind} value={kind}>{s.surveyOptions[kind]}</option>
+              ))}
+            </select>
+            <p className="hint">{s.surveyLead}</p>
+          </div>
           <div className="grid gap-5 sm:grid-cols-2">
             <div>
               <label className="label" htmlFor="color">{s.color}</label>
@@ -97,6 +116,7 @@ export function SettingsForm({ app, t, roadmapUrl, locale }: { app: App; t: Mess
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
             <div className="grid content-start gap-4">
               {TEXT_FIELDS.map((field) => {
+                if (field === "question" && survey === "none") return <input key={field} type="hidden" name="question" value={texts.question} />;
                 const common = {
                   id: field,
                   name: field,
@@ -118,6 +138,18 @@ export function SettingsForm({ app, t, roadmapUrl, locale }: { app: App; t: Mess
             </div>
             <figure className="m-0 grid content-start gap-3 rounded-xl bg-canvas p-4">
               <figcaption className="text-[12.5px] font-semibold text-muted">{s.preview}</figcaption>
+              {survey !== "none" && (
+                <div className="rounded-xl bg-surface p-4 shadow-[0_12px_30px_-12px_rgba(20,23,51,.3),0_0_0_1px_rgba(20,23,51,.06)]">
+                  <p className="text-[14.5px] leading-snug font-bold break-words">{texts.question || defaults.question}</p>
+                  <div className="mt-3 flex gap-1" aria-hidden>
+                    {Array.from({ length: scale }, (_, i) => (
+                      <span key={i} className="grid h-7 flex-1 place-items-center rounded-md border border-line text-[10.5px] font-semibold text-ink-2">
+                        {survey === "nps" ? i : i + 1}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
               <div className="rounded-xl bg-surface p-4 shadow-[0_12px_30px_-12px_rgba(20,23,51,.3),0_0_0_1px_rgba(20,23,51,.06)]">
                 <p className="text-[15px] leading-snug font-bold break-words">{texts.title || defaults.title}</p>
                 <p className="mt-1 text-[12.5px] break-words text-muted">{texts.subtitle || defaults.subtitle}</p>

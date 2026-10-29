@@ -35,7 +35,7 @@ export function Sidebar({ apps, user, locale, labels }: Props) {
         <Link href="/dashboard" aria-label="Customatic"><Logo /></Link>
         <div className="flex items-center gap-3 lg:hidden">
           <LangSwitch locale={locale} />
-          <button onClick={signOut} className="text-[13px] font-medium text-muted hover:text-ink">{labels.signOut}</button>
+          <button onClick={signOut} className="inline-flex min-h-8 items-center px-1 text-[13px] font-medium text-muted hover:text-ink">{labels.signOut}</button>
         </div>
       </div>
       <nav aria-label={labels.apps} className="flex gap-1 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible">
@@ -66,7 +66,7 @@ export function Sidebar({ apps, user, locale, labels }: Props) {
         <p className="truncate px-1.5 text-[12.5px] text-muted">{user.email}</p>
         <div className="mt-3 flex items-center justify-between px-1">
           <LangSwitch locale={locale} />
-          <button onClick={signOut} className="text-[13px] font-medium text-muted hover:text-ink">{labels.signOut}</button>
+          <button onClick={signOut} className="inline-flex min-h-8 items-center px-1 text-[13px] font-medium text-muted hover:text-ink">{labels.signOut}</button>
         </div>
       </div>
     </aside>
