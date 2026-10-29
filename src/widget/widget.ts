@@ -108,7 +108,8 @@ function boot() {
     const side = settings.position === "left" ? "left" : "right";
     const label = settings.label || s.button;
     root.innerHTML = `<style>${css(settings.color, side)}</style>
-      <button class="launcher" part="launcher" aria-expanded="${state.open}" aria-controls="cm-panel"
+      <div class="backdrop ${state.open ? "show" : ""}" data-action="close" aria-hidden="true"></div>
+      <button class="launcher ${state.open ? "hidden" : ""}" part="launcher" aria-expanded="${state.open}" aria-controls="cm-panel"
         aria-label="${escapeHtml(state.open ? s.close : label)}">
         ${icon(state.open ? "close" : "chat", 20)}<span>${escapeHtml(state.open ? s.close : label)}</span>
       </button>
@@ -122,6 +123,8 @@ function boot() {
     const s = t();
     if (state.done) {
       return `<div class="panel" id="cm-panel" role="dialog" aria-label="${s.title}">
+        <span class="grabber" aria-hidden="true"></span>
+        <header class="head"><div></div><button type="button" class="x" data-action="close" aria-label="${s.close}">${icon("close", 18)}</button></header>
         <div class="done" tabindex="-1">
           <div class="done-mark">${icon("comment", 28)}</div>
           <h2>${s.thanks}</h2>
@@ -156,7 +159,9 @@ function boot() {
         </form>`
       : "";
     return `<div class="panel" id="cm-panel" role="dialog" aria-label="${s.title}">
-      <header><h2>${s.title}</h2><p>${s.subtitle}</p></header>
+      <span class="grabber" aria-hidden="true"></span>
+      <header class="head"><div><h2>${s.title}</h2><p>${s.subtitle}</p></div>
+        <button type="button" class="x" data-action="close" aria-label="${s.close}">${icon("close", 18)}</button></header>
       <div class="types" role="group" aria-label="${s.pickType}">${typeButtons}</div>
       ${form}
       <footer><a href="https://github.com/PedroJDre/customatic" target="_blank" rel="noopener">${s.poweredBy}</a></footer>
@@ -166,6 +171,7 @@ function boot() {
   function wire() {
     const q = <T extends Element>(sel: string) => root.querySelector<T>(sel);
     q<HTMLButtonElement>(".launcher")!.onclick = () => (state.open ? api.close() : api.open());
+    root.querySelectorAll<HTMLElement>("[data-action=close]").forEach((el) => (el.onclick = () => api.close()));
     root.querySelectorAll<HTMLButtonElement>("[data-type]").forEach((button) => {
       button.onclick = () => {
         state = { ...state, type: button.dataset.type as FeedbackType, error: "" };

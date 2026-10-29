@@ -24,10 +24,34 @@ export function css(accent: string, side: "left" | "right"): string {
 .panel.enter { animation: rise .18s ease-out; }
 @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
 @media (prefers-reduced-motion: reduce) { .panel { animation: none; } .launcher { transition: none; } }
-@media (max-width: 480px) {
-  .panel { ${side}: 12px; bottom: 74px; width: calc(100vw - 24px); }
-  .launcher { ${side}: 12px; bottom: 14px; }
+/* Phones: the panel becomes a bottom sheet over the page, clear of the iPhone home bar. */
+@media (max-width: 520px) {
+  .launcher { ${side}: 12px; bottom: calc(12px + env(safe-area-inset-bottom)); height: 44px; }
+  .launcher.hidden { display: none; }
+  .backdrop { position: fixed; inset: 0; background: rgba(20,23,51,.35); animation: fade .18s ease-out; }
+  .panel {
+    left: 0; right: 0; bottom: 0; width: 100%; max-width: none;
+    max-height: calc(100dvh - 48px); border-radius: 18px 18px 0 0;
+    padding: 10px 16px calc(16px + env(safe-area-inset-bottom));
+    overscroll-behavior: contain;
+  }
+  .panel.enter { animation: sheet .22s ease-out; }
+  .grabber { display: block; }
+  /* 16px stops iOS Safari from zooming the page when a field gets focus. */
+  textarea, input[type=email] { font-size: 16px; }
+  .type { padding: 11px 12px; }
+  .primary { height: 48px; }
+  .ghost { height: 38px; }
 }
+@keyframes sheet { from { transform: translateY(100%); } }
+@keyframes fade { from { opacity: 0; } }
+.backdrop { display: none; }
+@media (max-width: 520px) { .backdrop.show { display: block; } }
+.grabber { display: none; width: 40px; height: 4px; border-radius: 2px; background: #d6d9e6; margin: 0 auto 10px; }
+.head { display: flex; align-items: flex-start; gap: 12px; }
+.head > div { flex: 1; }
+.x { flex: none; display: grid; place-items: center; width: 32px; height: 32px; margin: -4px -6px 0 0; border: 0; border-radius: 8px; background: transparent; color: #5b6079; cursor: pointer; }
+.x:hover { background: #f1f2f7; color: #141733; }
 header h2, .done h2 { margin: 0; font-size: 17px; font-weight: 700; letter-spacing: -.01em; }
 header p { margin: 3px 0 14px; color: #5b6079; font-size: 13px; }
 .types { display: grid; gap: 6px; }
