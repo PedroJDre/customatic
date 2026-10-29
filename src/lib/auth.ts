@@ -12,6 +12,17 @@ export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET,
   database: drizzleAdapter(db, { provider: "pg", schema }),
   emailAndPassword: { enabled: true, minPasswordLength: 8, autoSignIn: true },
+  // Google and GitHub sign-in turn on when their credentials are set (see .env.example).
+  socialProviders: {
+    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+      ? { google: { clientId: process.env.GOOGLE_CLIENT_ID, clientSecret: process.env.GOOGLE_CLIENT_SECRET, prompt: "select_account" as const } }
+      : {}),
+    ...(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET
+      ? { github: { clientId: process.env.GITHUB_CLIENT_ID, clientSecret: process.env.GITHUB_CLIENT_SECRET } }
+      : {}),
+  },
+  // Signing in with Google or GitHub using the same email joins the existing account instead of creating another.
+  account: { accountLinking: { enabled: true, trustedProviders: ["google", "github"] } },
   session: { cookieCache: { enabled: true, maxAge: 60 * 5 } },
   plugins: [
     // Workspaces: every app belongs to one, and teammates are its members.
@@ -32,3 +43,13 @@ export const auth = betterAuth({
 });
 
 export type Session = typeof auth.$Infer.Session;
+
+export type SocialProvider = "google" | "github";
+
+/** Providers with credentials on this install, in the order the buttons are shown. */
+export function enabledSocialProviders(): SocialProvider[] {
+  const list: SocialProvider[] = [];
+  if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) list.push("google");
+  if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) list.push("github");
+  return list;
+}

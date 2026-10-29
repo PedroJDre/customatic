@@ -33,7 +33,7 @@
 - **Reply by email** from the dashboard, with the thread saved.
 - **Analytics**: reports per day, pages with the most problems, devices, and median time to resolve.
 - **Public roadmap**: publish ideas, show what's planned and shipped, and let visitors vote.
-- **Workspaces and teammates** through email invitations.
+- **Sign in with Google, GitHub or email**, plus **workspaces and teammates** through email invitations.
 
 | Widget | Inbox | Analytics |
 | --- | --- | --- |
@@ -84,6 +84,10 @@ Or just the app with the embedded database: `docker build -t customatic . && doc
 | `DATABASE_URL` | No | `postgres://...` for Postgres. Empty uses PGlite in `./.data`. |
 | `SMTP_URL` | No | Any SMTP server (`smtps://user:pass@smtp.resend.com:465`). Without it, replies and invitations are saved and logged, but not emailed. |
 | `EMAIL_FROM` | No | Sender, e.g. `Customatic <feedback@yourdomain.com>`. |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | No | Adds "Continue with Google". Redirect URI: `<APP_URL>/api/auth/callback/google`. |
+| `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | No | Adds "Continue with GitHub". Callback URL: `<APP_URL>/api/auth/callback/github`. |
+
+Social sign-in buttons only appear for providers with credentials. Signing in with Google or GitHub using the same email as an existing account joins that account.
 
 ## Widget API
 
@@ -133,7 +137,7 @@ The **Install** tab also gives you a ready-made prompt for Claude Code, Cursor o
 
 - **Next.js 16** (App Router, server actions) + **TypeScript** + **Tailwind CSS 4**
 - **Postgres** through **Drizzle ORM**: PGlite locally, any Postgres in production
-- **Better Auth** for email/password accounts, workspaces and invitations
+- **Better Auth** for email, Google and GitHub sign-in, workspaces and invitations
 - The widget is plain TypeScript bundled with **esbuild**. Page capture uses `modern-screenshot`, loaded on demand.
 - **Vitest** tests run against a real Postgres (PGlite in memory): validation, allowed domains, rate limits, screenshots, inbox filters, analytics and the roadmap.
 

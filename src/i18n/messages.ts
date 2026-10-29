@@ -29,6 +29,9 @@ const en = {
     invalid: "Wrong email or password.",
     exists: "There's already an account with this email. Sign in instead.",
     failed: "That didn't work. Check the fields and try again.",
+    continueWith: "Continue with {provider}",
+    orEmail: "or with your email",
+    socialFailed: "Signing in with {provider} didn't work. Try again or use your email.",
   },
   nav: {
     inbox: "Inbox",
@@ -221,6 +224,9 @@ const es: DeepString<Dict> = {
     invalid: "Email o contraseña incorrectos.",
     exists: "Ya hay una cuenta con este email. Ingresá con ella.",
     failed: "No funcionó. Revisá los campos y probá de nuevo.",
+    continueWith: "Continuar con {provider}",
+    orEmail: "o con tu email",
+    socialFailed: "No se pudo ingresar con {provider}. Probá de nuevo o usá tu email.",
   },
   nav: {
     inbox: "Bandeja",
