@@ -39,6 +39,10 @@
 | --- | --- | --- |
 | ![Widget](docs/widget.png) | ![Inbox](docs/inbox.png) | ![Analytics](docs/analytics.png) |
 
+**Made for phones too.** On small screens the widget opens as a bottom sheet, fields are sized so iOS doesn't zoom in, and it stays clear of the home bar. The dashboard works on a phone as well, so you can triage from anywhere.
+
+![Customatic on a phone: the widget as a bottom sheet, a report with a screenshot, and the inbox](docs/mobile.png)
+
 ## Quick start
 
 You need Node.js 20.9+.
