@@ -28,8 +28,8 @@ function Mark({ provider }: { provider: SocialProvider }) {
   );
 }
 
-/** "Continue with Google / GitHub". The provider sends the user back to `target` once signed in. */
 /**
+ * "Continue with Google / GitHub". The provider sends the user back to `target` once signed in.
  * After a failed sign-in, the provider sends the user to /sign-in?provider=…&error=… (Better Auth adds `error`).
  * "account_not_linked": an account with that email exists but its email was never verified, so it can't be joined.
  */
